@@ -1,0 +1,227 @@
+--------------------------------------------------------------------------------
+-- Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+--
+-- All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+-- used  under  the  terms of its associated license document. You may NOT copy,
+-- modify, sublicense, or distribute this source file or portions of  it  unless
+-- previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+-- notice and above copyright must always be included verbatim with this file.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+1) Instalar "OpenJDK 17.0.6 de Azul Zulu" usando los siguientes pasos:
+
+    - Navegar a la dirección "https://www.azul.com/downloads/".
+    - Desgargar archivo "zulu17.40.19-ca-jdk17.0.6-win_x64.zip".
+    - Descomprimir archivo descargado en "C:\Java\jdk17.0.6-azul".
+    - Definir variable de ambiente JAVA_HOME = "C:\Java\jdk17.0.6-azul".
+
+--------------------------------------------------------------------------------
+2) Descomprimir "wildfly-27.0.1.Final.zip" en directorio:
+
+    - Linux   "/opt/wildfly-27.0.1.Final"
+    - Windows "C:\Java\wildfly-27.0.1.Final"
+
+--------------------------------------------------------------------------------
+3) Ajustar parámetros de WildFly en el archivo de configuración "standalone":
+
+    Editar el archivo de configuración de "standalone":
+
+        - Linux   "/opt/wildfly-27.0.1.Final/bin/standalone.conf"
+        - Windows "C:\Java\wildfly-27.0.1.Final\bin\standalone.conf.bat"
+
+    Agregar la siguiente línea en los lugares que están indicados:
+
+        set "JAVA_HOME=C:\Java\jdk17.0.6-azul"
+
+    Agregar las siguientes líneas al final del archivo:
+
+        rem # Modify all listen ports by adding 100 to all of them
+        set "JAVA_OPTS=%JAVA_OPTS% -Djboss.socket.binding.port-offset=100"
+
+        rem # Disable the transformer process that changes javax -> jakarta
+        set "JAVA_OPTS=%JAVA_OPTS% -Dorg.wildfly.unsupported.skip.jakarta.transformer=true"
+
+--------------------------------------------------------------------------------
+4) Ejecutar el servidor WildFly "standalone" ejecutando el archivo:
+
+    - Linux   "/opt/wildfly-27.0.1.Final/bin/standalone.sh -c standalone-full.xml"
+    - Windows "C:\Java\wildfly-27.0.1.Final\bin\standalone.bat -c standalone-full.xml"
+
+--------------------------------------------------------------------------------
+5) Definir la cuenta del "Administrador" (admin) de WildFly:
+
+    - Linux   "/opt/wildfly-27.0.1.Final/bin/add-user.sh"
+    - Windows "C:\Java\wildfly-27.0.1.Final\bin\add-user.bat"
+
+    > What type of user do you wish to add?
+    >  a) Management User (mgmt-users.properties)
+    >  b) Application User (application-users.properties)
+    > (a): <<a>>
+    > Enter the details of the new user to add.
+    > Using realm 'ManagementRealm' as discovered from the existing property files.
+    > Username : <<admin>>
+    > User 'admin' already exists and is disabled, would you like to...
+    >  a) Update the existing user password and roles
+    >  b) Enable the existing user
+    >  c) Type a new username
+    > (a): <<a>>
+    > Password recommendations are listed below. To modify these restrictions edit the add-user.properties configuration file.
+    >  - The password should be different from the username
+    >  - The password should not be one of the following restricted values {root, admin, administrator}
+    >  - The password should contain at least 8 characters, 1 alphabetic character(s), 1 digit(s), 1 non-alphanumeric symbol(s)
+    > Password :<<adminadmin>>
+    > WFLYDM0101: Password should have at least 1 digit.
+    > Are you sure you want to use the password entered yes/no? yes
+    > Re-enter Password : <<adminadmin>>
+    > What groups do you want this user to belong to? (Please enter a comma separated list, or leave blank for none)[  ]:
+    > Updated user 'admin' to file 'C:\Java\wildfly-27.0.1.Final\standalone\configuration\mgmt-users.properties'
+    > Updated user 'admin' to file 'C:\Java\wildfly-27.0.1.Final\domain\configuration\mgmt-users.properties'
+    > Updated user 'admin' with groups  to file 'C:\Java\wildfly-27.0.1.Final\standalone\configuration\mgmt-groups.properties'
+    > Updated user 'admin' with groups  to file 'C:\Java\wildfly-27.0.1.Final\domain\configuration\mgmt-groups.properties'
+    > Is this new user going to be used for one AS process to connect to another AS process?
+    > e.g. for a secondary host controller connecting to the primary or for a Remoting connection for server to server Jakarta Enterprise Beans calls.
+    > yes/no? <<no>>
+
+--------------------------------------------------------------------------------
+6) Navegar a la URL "http://localhost:9990/" de administración de WildFly:
+
+    El browser pedirá credenciales: ingresar el usuario y la contraseña del
+    administator que se configuró en el paso (6).
+
+--------------------------------------------------------------------------------
+7) Hacer que WildFly atienda por todas las interfaces (y no sólo 127.0.0.1):
+
+    Editar archivo "standalone-full.xml" que se encuentra en el directorio:
+
+       - Linux "/opt/wildfly-27.0.1.Final/standalone/configuration"
+       - Windows "C:\Java\wildfly-27.0.1.Final\standalone\configuration"
+
+    Modificar las siguientes líneas:
+
+        <interfaces>
+            <interface name="management">
+                <inet-address value="${jboss.bind.address.management:127.0.0.1}"/>
+            </interface>
+            <interface name="public">
+                <inet-address value="${jboss.bind.address:0.0.0.0}"/> <= CAMBIAR
+            </interface>
+            <interface name="unsecure">
+                <inet-address value="${jboss.bind.address.unsecure:127.0.0.1}"/>
+            </interface>
+        </interfaces>
+
+================================================================================
+== Configuraciones opcionales ==================================================
+================================================================================
+
+--------------------------------------------------------------------------------
+8) Instalar o desinstalar WildFly como un Servicio Windows:
+
+    Copiar "C:\Java\wildfly-27.0.1.Final\docs\contrib\scripts\service" al
+    directorio "C:\Java\wildfly-27.0.1.Final\bin\service"
+
+    Iniciar una consola CMD con privilegios de Administrador y ejecutar:
+
+        "C:\Java\wildfly-27.0.1.Final\bin\service\service.bat" install ^
+        /controller localhost:9990 /jbossuser "admin" /jbosspass "adminadmin" ^
+        /name wildfly_27.0.1 /display "WildFly 27.0.1" /desc "WildFly 27.0.1" ^
+        /config "standalone-full.xml"
+
+        - El puerto 9990 fue configurado en el paso (3).
+        - Datos "admin" y "adminadmin" configurados en el paso (5).
+        - La marca "^" debe eliminarse y colocar todo en una línea.
+
+    Iniciar una consola CMD con privilegios de Administrador y ejecutar
+    el siguiente comando para desinstalar la versión anterior de WildFly:
+
+        "C:\Java\wildfly-27.0.1.Final\bin\service\service.bat" uninstall ^
+        /name wildfly_27.0.0
+
+        - La marca "^" debe eliminarse y colocar todo en una línea.
+
+--------------------------------------------------------------------------------
+9) Definir el certificado y llave (key) para comunicación HTTPS/SSL:
+
+    Copiar archivo "application.keystore" al directorio:
+
+        - Linux "/opt/wildfly-27.0.1.Final/standalone/configuration"
+        - Windows "C:\Java\wildfly-27.0.1.Final\standalone\configuration"
+
+    Editar archivo "standalone-full.xml" y modificar los parámetros:
+
+        - "changeit": contraseña del archivo "server.keystore.jks".
+        - "changeit": contraseña de la llave (key) en "server.keystore.jks".
+        - "generate-self-signed-certificate-host": borrar este parámetro.
+
+        <subsystem xmlns="urn:wildfly:elytron:15.1" ...>
+            ...
+            <tls>
+                <key-stores>
+                    <key-store name="applicationKS">
+                        <credential-reference clear-text="changeit"/>   <== CAMBIAR
+                        <implementation type="JKS"/>
+                        <file path="server.keystore.jks" relative-to="jboss.server.config.dir"/> <== CAMBIAR
+                    </key-store>
+                </key-stores>
+                <key-managers>
+                    <key-manager name="applicationKM" key-store="applicationKS">
+                        <credential-reference clear-text="changeit"/>   <== CAMBIAR
+                    </key-manager>
+                </key-managers>
+                <server-ssl-contexts>
+                    <server-ssl-context name="applicationSSC" key-manager="applicationKM"/>
+                </server-ssl-contexts>
+            </tls>
+        </subsystem>
+
+--------------------------------------------------------------------------------
+10) Cambiar los puertos "8080, 8443 y 9990" por puertos "8180, 8543 y 10090":
+
+    Editar el archivo de configuración de "standalone":
+
+        - Linux   "/opt/wildfly-27.0.1.Final/bin/standalone.conf"
+        - Windows "C:\Java\wildfly-27.0.1.Final\bin\standalone.conf.bat"
+
+    Agregar las siguientes líneas al final del archivo:
+
+        rem # Modify all listen ports by adding 100 to all of them
+        set "JAVA_OPTS=%JAVA_OPTS% -Djboss.socket.binding.port-offset=100"
+
+    Esta propiedad cambia todos los puertos de WildFly como sigue:
+
+        Puerto 8080 + 100 => 8180    http
+        Puerto 8443 + 100 => 8543    https
+        Puerto 9990 + 100 => 10090   management-http
+        Puerto 9993 + 100 => 10093   management-https
+        Puerto 8009 + 100 => 8109    ajp
+        Puerto 4712 + 100 => 4812    txn-recovery-environment
+        Puerto 4713 + 100 => 4813    txn-status-manager
+
+--------------------------------------------------------------------------------
+11) Instalar WildFly como un Servicio (SYSTEMD) en Linux:
+
+    Copiar archivo "systemd/wildfly.service" al directorio:
+
+       /usr/lib/systemd/system/wildfly.service
+
+    Luego se puede controlar WildFly con los siguientes comandos:
+
+       systemctl start wildlfy          # Iniciar
+       systemctl stop wildlfy           # Detener
+       systemctl status wildlfy         # Ver estado
+       systemctl enable wildlfy         # Habilitar servicio
+       systemctl disable wildlfy        # Deshabilitar servicio
+
+--------------------------------------------------------------------------------
+12) Configurar firewall Linux para habilitar puertos 8080, 8443, 9990 y 9993:
+
+    firewall-cmd --get-active-zones
+    firewall-cmd --get-default-zone
+    firewall-cmd --zone=public --list-ports
+    firewall-cmd --zone=public --add-port=8080/tcp --permanent
+    firewall-cmd --zone=public --add-port=8443/tcp --permanent
+    firewall-cmd --zone=public --add-port=9990/tcp --permanent
+    firewall-cmd --zone=public --add-port=9993/tcp --permanent
+
+--------------------------------------------------------------------------------

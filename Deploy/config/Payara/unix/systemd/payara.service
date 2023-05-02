@@ -1,0 +1,13 @@
+[Unit]
+Description=Payara 5.2022.5 service
+
+[Service]
+Type=forking
+WorkingDirectory=/opt/payara-5.2022.5/glassfish/domains/domain1
+ExecStart=/opt/payara-5.2022.5/glassfish/bin/asadmin start-domain domain1
+ExecStop=/opt/payara-5.2022.5/glassfish/bin/asadmin stop-domain domain1
+User=payara
+Group=payara
+
+[Install]
+WantedBy=multi-user.target

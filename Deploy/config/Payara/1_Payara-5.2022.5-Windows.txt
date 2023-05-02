@@ -1,0 +1,136 @@
+--------------------------------------------------------------------------------
+-- Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+--
+-- All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+-- used  under  the  terms of its associated license document. You may NOT copy,
+-- modify, sublicense, or distribute this source file or portions of  it  unless
+-- previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+-- notice and above copyright must always be included verbatim with this file.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+1) Instalar "OpenJDK 17.0.6 de Azul Zulu" usando los siguientes pasos:
+
+    a) Navegar a la dirección "https://www.azul.com/downloads/".
+    b) Desgargar archivo "zulu17.40.19-ca-jdk17.0.6-win_x64.zip".
+    c) Descomprimir archivo descargado en "C:\Java\jdk17.0.6-azul".
+
+--------------------------------------------------------------------------------
+2) Instalar "Payara Server 5.2022.5 (Full)" usando los siguientes pasos:
+
+    a) Descargar archivo "payara-5.2022.5.zip" desde
+       "https://www.payara.fish/downloads/payara-platform-community-edition/".
+    b) Descomprimir archivo descargado en "C:\Java\payara-5.2022.5".
+
+--------------------------------------------------------------------------------
+3) Editar "C:\Java\payara-5.2022.5\glassfish\config\asenv.bat" y agregar:
+
+set AS_JAVA=C:\Java\jdk17.0.6-azul
+
+--------------------------------------------------------------------------------
+4) Iniciar servidor "Payara 5.2022.5" con el dominio "domain1":
+
+    C:\Java\payara-5.2022.5\bin\asadmin.bat start-domain domain1
+
+Abrir "Consola HTTP de Administración" navegando a la URL:
+
+    http://localhost:4848/
+
+Detener servidor "Payara 5.2022.5" con el dominio "domain1":
+
+    C:\Java\payara-5.2022.5\bin\asadmin.bat stop-domain domain1
+
+--------------------------------------------------------------------------------
+5) Configuración servidor "Payara 5.2022.5" con el dominio "domain1":
+
+# Detener el servidor Payara
+C:\Java\payara-5.2022.5\bin\asadmin.bat stop-domain domain1
+
+# Cambiar la contraseña del usuario administrador "admin":
+C:\Java\payara-5.2022.5\bin\asadmin.bat change-admin-password --domain_name domain1
+# Enter admin user name [default: admin]> admin
+# Enter the admin password> <<enter>>
+# Enter the new admin password> adminadmin
+# Enter the new admin password again> adminadmin
+# Command change-admin-password executed successfully.
+
+# Iniciar el servidor Payara
+C:\Java\payara-5.2022.5\bin\asadmin.bat start-domain domain1
+
+# Guardar credenciales para que "asadmin.bat" haga "auto-login"
+C:\Java\payara-5.2022.5\bin\asadmin.bat login
+# Enter admin user name [Enter to accept default]> admin
+# Enter admin password> adminadmin
+# Guarda contraseña en archivo "C:\Users\<Usuario>\.gfclient\pass"
+
+# Habilitar HTTPS para poder tener acceso remoto a Payara
+# URL http://xxxx:4848/ se cambiar por https://xxxx:4848/
+C:\Java\payara-5.2022.5\bin\asadmin.bat enable-secure-admin
+# You must restart all running servers for the change in secure admin to take effect.
+# Command enable-secure-admin executed successfully.
+
+================================================================================
+== Configuraciones avanzadas opcionales ========================================
+================================================================================
+
+--------------------------------------------------------------------------------
+6) Leer: https://blog.payara.fish/fine-tuning-payara-server-5-in-production
+
+# Cambiar las opciones de JVM (recomendadas por sitio de Payara):
+C:\Java\payara-5.2022.5\bin\asadmin.bat delete-jvm-options -- '-Xmx512m'
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-jvm-options -- '-Xms1g'
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-jvm-options -- '-Xmx2g'
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-jvm-options -- '-XX:+UseG1GC'
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-jvm-options -- '-XX:MetaspaceSize=256m'
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-jvm-options -- '-XX:MaxMetaspaceSize=1g'
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-jvm-options -- '-XX:+DisableExplicitGC'
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-jvm-options -- '-XX:+UseStringDeduplication'
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-jvm-options -- '-XX:NativeMemoryTracking=detail'
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-jvm-options -- '-Dfish.payara.classloading.delegate=false'
+
+# Deshabilitar envio de encabezados de identidad (para mejorar seguridad):
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-jvm-options -- '-Dproduct.name=""'
+C:\Java\payara-5.2022.5\bin\asadmin.bat set server.network-config.protocols.protocol.http-listener-1.http.xpowered-by=false
+C:\Java\payara-5.2022.5\bin\asadmin.bat set server.network-config.protocols.protocol.http-listener-2.http.xpowered-by=false
+C:\Java\payara-5.2022.5\bin\asadmin.bat set server.network-config.protocols.protocol.admin-listener.http.xpowered-by=false
+C:\Java\payara-5.2022.5\bin\asadmin.bat set server.network-config.protocols.protocol.sec-admin-listener.http.xpowered-by=false
+
+# Usar protocolo (scheme) especificado en encabezado HTTP "X-Forwarded-Proto" (Reverse Proxy):
+C:\Java\payara-5.2022.5\bin\asadmin.bat set server.network-config.protocols.protocol.http-listener-1.http.scheme-mapping=X-Forwarded-Proto
+C:\Java\payara-5.2022.5\bin\asadmin.bat set server.network-config.protocols.protocol.admin-listener.http.scheme-mapping=X-Forwarded-Proto
+
+# Habilitar instalación y actualización automática vía directorio "autodeploy":
+C:\Java\payara-5.2022.5\bin\asadmin.bat set server.admin-service.das-config.autodeploy-enabled=true
+C:\Java\payara-5.2022.5\bin\asadmin.bat set server.admin-service.das-config.dynamic-reload-enabled=true
+
+# Habilitar consola de monitoreo (http://localhost:8080/monitoring-console/)
+C:\Java\payara-5.2022.5\bin\asadmin.bat set-monitoring-console-configuration --enabled=false
+
+--------------------------------------------------------------------------------
+7) Configuración "Payara 5.2022.5" como "Servicio Windows" (como Administrador):
+
+# Crear un "Servicio Windows Paraya" para dominio "prodction":
+C:\Java\payara-5.2022.5\bin\asadmin.bat create-service --name payara_5_2022_5 --domaindir C:\Java\payara-5.2022.5\glassfish\domains\ domain1
+
+# Cambiar el nombre de "Servicio Windows Paraya" a uno más entendible:
+C:\Windows\System32\sc.exe config payara_5_2022_5 DisplayName= "Payara 5.2022.5"
+
+# Cambiar la descripción de "Servicio Windows Paraya" a una más entendible:
+C:\Windows\System32\sc.exe description payara_5_2022_5 "Payara 5.2022.5"
+
+# Borrar el "Servicio Windows Paraya" anterior:
+C:\Windows\System32\sc.exe delete payara_5_2021_10
+
+--------------------------------------------------------------------------------
+8) Cambiar el certificado utilizado para comunicación HTTPS:
+
+# Cambiar archivo "keystore.jks" en el siguiente directorio:
+C:\Java\payara-5.2022.5\glassfish\domains\domain1\config
+
+# Rehabilitar comunicación segura para leer nuevo certificado:
+C:\Java\payara-5.2022.5\bin\asadmin.bat enable-secure-admin
+
+# Reiniciar servidor Payara para activar los cambios:
+C:\Java\payara-5.2022.5\bin\asadmin.bat restart-domain domain1
+
+--------------------------------------------------------------------------------

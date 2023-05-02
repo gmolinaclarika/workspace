@@ -1,0 +1,68 @@
+<!--
+ * Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+ *
+ * All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+ * used  under  the  terms of its associated license document. You may NOT copy,
+ * modify, sublicense, or distribute this source file or portions of  it  unless
+ * previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+ * notice and above copyright must always be included verbatim with this file.
+-->
+<!DOCTYPE project>
+<project name="build-def" basedir=".">
+    <!-- =================================================================== -->
+    <!-- == Enable/Disable Flags =========================================== -->
+    <!-- =================================================================== -->
+
+    <!-- Sign files using JarSigner -->
+    <property name="use.jarsigner" value="true"/>
+
+    <!-- Sign jar files lazily or always -->
+    <property name="lazy.sign" value="true"/>
+
+    <!-- Optimize files using ProGuard -->
+    <property name="use.proguard" value="true"/>
+
+    <!-- =================================================================== -->
+    <!-- == Locations ====================================================== -->
+    <!-- =================================================================== -->
+
+    <!-- Directory that containts the deploy files -->
+    <property name="deploy.dir" location="../../Deploy"/>
+
+    <!-- Directory that containts tools to build projects -->
+    <property name="deploy.tools" location="${deploy.dir}/ant"/>
+
+    <!-- Directory that containts certificates to sign projects -->
+    <property name="deploy.certs" location="${deploy.dir}/certs"/>
+
+    <!-- Directory that containts all library jar files -->
+    <property name="deploy.libs" location="${deploy.dir}/libs"/>
+
+    <!-- Directory that containts all obcom library jar files -->
+    <property name="deploy.olibs" location="${deploy.dir}/olibs"/>
+
+    <!-- Directory that containts all extenal library jar files -->
+    <property name="deploy.xlibs" location="${deploy.dir}/xlibs"/>
+
+    <!-- Directory that containts all deployable java files -->
+    <property name="deploy.deploy" location="${deploy.dir}/deploy"/>
+
+    <!-- Directory that containts all deployable javadoc files -->
+    <property name="deploy.javadoc" location="${deploy.dir}/javadoc"/>
+
+    <!-- Directory that containts all deployable par files -->
+    <property name="deploy.pars" location="${deploy.dir}/pars"/>
+
+    <!-- Version timestamp pattern -->
+    <property name="version.pattern" value="yyyyMMdd.HHmmss"/>
+
+    <!-- Build-DateTime timestamp pattern -->
+    <property name="build.datetime.pattern" value="yyyy-MM-dd'T'HH:mm:ss.SSSZ"/>
+
+    <!-- =================================================================== -->
+    <!-- == Signature ====================================================== -->
+    <!-- =================================================================== -->
+
+    <!-- Load all the properties needed to sign files -->
+    <property file="${deploy.certs}/sign.properties"/>
+</project>

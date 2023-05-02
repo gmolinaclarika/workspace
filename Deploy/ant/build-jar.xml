@@ -1,0 +1,189 @@
+<!--
+ * Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+ *
+ * All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+ * used  under  the  terms of its associated license document. You may NOT copy,
+ * modify, sublicense, or distribute this source file or portions of  it  unless
+ * previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+ * notice and above copyright must always be included verbatim with this file.
+-->
+<!DOCTYPE project>
+<project name="jar-build" basedir=".">
+    <!-- Import common ant definitions -->
+    <import file="build-def.xml"/>
+
+    <!-- Default JAR specification version -->
+    <property name="jar.version" value="1.1"/>
+
+    <!-- Directory that contains the JAR java sources -->
+    <property name="src.dir" location="../src"/>
+
+    <!-- Directory that contains the JAR class files -->
+    <property name="bin.dir" location="../bin"/>
+
+    <!-- Location of the application JAR file -->
+    <property name="jar.file" location="${ant.project.name}.jar"/>
+
+    <!-- Location of the application JAR file in deploys directory -->
+    <property name="dep.file" location="${deploy.libs}/${ant.project.name}.jar"/>
+
+    <!-- Location of the ProGuard configuration file -->
+    <property name="proguard.pro" location="${deploy.tools}/proguard.pro"/>
+
+    <!-- Location of the overview document for javadoc -->
+    <property name="doc.overview" location="${ant.project.name}.html"/>
+
+    <!-- Document classes and members that are package visible -->
+    <property name="doc.show.package" value="false"/>
+
+    <!-- Location of the application javadoc documentation file -->
+    <property name="doc.file" location="${deploy.javadoc}/${ant.project.name}-javadoc.jar"/>
+
+    <!-- Set "jnlp.dir.exists" to "true" if JNLP directory exists -->
+    <available property="jnlp.dir.exists" file="${jnlp.dir}" type="dir"/>
+
+    <!-- Define location of the generated PAR file -->
+    <property name="par.file" location="${plugin.name}.par"/>
+
+    <!-- Temporal directory where PAR file is built -->
+    <property name="par.dir" location="par.build"/>
+
+    <!-- Application classpath -->
+    <path id="class.path"/>
+
+    <!--=====================================================================-->
+
+    <!-- Builds JAR file dependencies -->
+    <target name="jar-depends"/>
+
+    <!-- Builds the application JAR file -->
+    <target name="jar-build" depends="jar-depends">
+        <tstamp>
+            <format property="version" pattern="${version.pattern}"/>
+            <format property="build.datetime" pattern="${build.datetime.pattern}"/>
+        </tstamp>
+        <replaceregexp file="MANIFEST.MF" match="Ant-Version:.*\n" flags="g" replace=""/>
+        <replaceregexp file="MANIFEST.MF" match="Created-By:.*\n" flags="g" replace=""/>
+        <replaceregexp file="MANIFEST.MF" match="Package-Version:.*" flags="g"
+            replace="Package-Version: ${jar.version}.${version}"/>
+        <manifest file="MANIFEST.MF" mode="update">
+            <attribute name="Build-DateTime" value="${build.datetime}"/>
+            <attribute name="Specification-Version" value="${jar.version}"/>
+            <attribute name="Implementation-Version" value="${jar.version}.${version}"/>
+        </manifest>
+        <echo message="jar file version = ${jar.version}.${version}"/>
+        <jar destfile="${jar.file}" manifest="MANIFEST.MF" compress="true">
+            <fileset dir="${bin.dir}" excludes="**/*.java,**/*.html"/>
+        </jar>
+        <delete file="${dep.file}"/>
+    </target>
+
+    <!--=====================================================================-->
+
+    <!-- ProGuard tool to optimize + obfuscate jar files -->
+    <target name="proguard-def">
+        <taskdef resource="proguard/ant/task.properties"
+        classpath="${deploy.tools}/tools/proguard-ant-7.3.2.jar"/>
+    </target>
+
+    <!-- Optimize JAR file in the current directory (if use.proguard) -->
+    <target name="jar-optimize" depends="proguard-def" if="${use.proguard}">
+        <proguard configuration="${proguard.pro}"
+            printseeds="${ant.project.name}.seeds"
+            printmapping="${ant.project.name}.map">
+            <injar file="${jar.file}" filter="!**/*.java"/>
+            <outjar file="${ant.project.name}0.jar"/>
+            <libraryjar refid="class.path"/>
+        </proguard>
+        <move file="${ant.project.name}0.jar" tofile="${jar.file}" verbose="true"/>
+    </target>
+
+    <!--=====================================================================-->
+
+    <!-- Sign the JAR file in the current directory (if use.jarsigner) -->
+    <target name="jar-signjar" if="${use.jarsigner}">
+        <signjar storetype="${sign.storetype}" jar="${jar.file}"
+            digestalg="${sign.digestalg}" lazy="${lazy.sign}" strict="true"
+            sigfile="${sign.sigfile}" tsaurl="${sign.tsaurl}"
+            keystore="${sign.keystore}" alias="${sign.alias}"
+            storepass="${sign.storepass}" keypass="${sign.keypass}">
+            <sysproperty key="jsse.enableSNIExtension" value="true"/>
+        </signjar>
+    </target>
+
+    <!-- Copy the signed JAR file to JNLP directory (if jnlp.dir.exists) -->
+    <target name="jar-signjar-jnlp" depends="jar-signjar" if="jnlp.dir.exists">
+        <copy file="${jar.file}" todir="${jnlp.dir}" verbose="true"/>
+    </target>
+
+    <!--=====================================================================-->
+
+    <!-- Builds the application javadoc file (if doc.header) -->
+    <target name="jar-javadoc" if="doc.header">
+        <delete dir="javadoc"/>
+        <tstamp>
+            <format property="doc.date" pattern="yyyy-MM-dd"/>
+        </tstamp>
+        <javadoc destdir="javadoc" author="no" verbose="no"
+            encoding="UTF-8" docencoding="UTF-8" charset="UTF-8"
+            classpathref="class.path" overview="${doc.overview}" package="${doc.show.package}"
+            doctitle="${doc.header} v${jar.version}" windowtitle="${doc.header} v${jar.version}"
+            additionalparam="-quiet -Xdoclint:-missing">
+            <header><![CDATA[<p>${doc.header}&nbsp;v${jar.version}&nbsp;(${doc.date})</p>]]></header>
+            <bottom><![CDATA[Copyright &copy; <a href="http://www.imperial.cl/" target="_blank">CyC S.A. (Chile)</a>. All Rights Reserved.]]></bottom>
+            <link href="https://docs.oracle.com/javase/8/docs/jre/api/javaws/jnlp/"/>
+            <link href="https://docs.oracle.com/javase/8/javafx/api/"/>
+            <link href="https://docs.oracle.com/javase/8/docs/api/"/>
+            <link href="https://www.obcom.cl/obdocum/desktopfx/"/>
+            <packageset dir="${src.dir}" defaultexcludes="yes">
+                <patternset refid="doc.packageset"/>
+            </packageset>
+        </javadoc>
+        <jar destfile="${doc.file}" manifest="MANIFEST.MF" compress="true">
+            <fileset dir="javadoc"/>
+        </jar>
+        <delete dir="javadoc"/>
+    </target>
+
+    <!--=====================================================================-->
+
+    <!-- Optimize JAR + Sign JAR file + Generate javadoc + Copy to libs -->
+    <target name="jar-optimize-sign-javadoc" depends="jar-optimize,jar-signjar-jnlp,jar-javadoc">
+        <move file="${jar.file}" tofile="${dep.file}" verbose="true"/>
+    </target>
+
+    <!--=====================================================================-->
+
+    <!-- Builds PAR file dependencies -->
+    <target name="par-depends"/>
+
+    <!-- Sign the PAR file -->
+    <target name="par-signpar">
+        <signjar storetype="${sign.storetype}" jar="${par.file}"
+            digestalg="${sign.digestalg}" lazy="${lazy.sign}"
+            sigfile="${sign.sigfile}" tsaurl="${sign.tsaurl}"
+            keystore="${sign.keystore}" alias="${sign.alias}"
+            storepass="${sign.storepass}" keypass="${sign.keypass}">
+            <sysproperty key="jsse.enableSNIExtension" value="true"/>
+        </signjar>
+    </target>
+
+    <!-- Optimize, sign, javadoc and then build PAR file (if plugin.name) -->
+    <target name="par-build" depends="jar-optimize-sign-javadoc" if="plugin.name">
+        <delete dir="${par.dir}"/>
+        <copy file="${dep.file}" todir="${par.dir}"
+            preservelastmodified="true" verbose="true"/>
+        <antcall target="par-depends"/>
+        <jar destfile="${par.file}" manifest="MANIFEST.MF" compress="true">
+            <fileset dir="${par.dir}"/>
+        </jar>
+    	<antcall target="par-signpar"/>
+        <delete dir="${par.dir}"/>
+        <move file="${par.file}" todir="${deploy.pars}" verbose="true"/>
+    </target>
+
+    <!--=====================================================================-->
+
+    <!-- Perform all build steps: build, optimize, sign, javadoc, par -->
+    <target name="jar-deploy-all" depends="jar-build,par-build"/>
+</project>

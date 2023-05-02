@@ -1,0 +1,13 @@
+[Unit]
+Description=WildFly 27.0.1 service
+
+[Service]
+Type=forking
+WorkingDirectory=/opt/wildfly-27.0.1.Final/standalone
+ExecStart=/opt/wildfly-27.0.1.Final/bin/standalone.sh -b=0.0.0.0 -bmanagement=0.0.0.0
+ExecStop=/opt/wildfly-27.0.1.Final/bin/jboss-cli.sh --connect controller=localhost:9090 command=/:shutdown
+User=wildfly
+Group=wildfly
+
+[Install]
+WantedBy=multi-user.target

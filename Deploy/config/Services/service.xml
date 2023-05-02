@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright (c) IMPERIAL S.A. All rights reserved.
+ *
+ * All  rights  to  this product are owned by IMPERIAL S.A. and may only be used
+ * under the terms of its associated license document. You may NOT copy, modify,
+ * sublicense,  or  distribute  this  source  file  or  portions  of  it  unless
+ * previously  authorized  in writing by IMPERIAL S.A. In any event, this notice
+ * and above copyright must always be included verbatim with this file.
+-->
+<!DOCTYPE xml>
+<service-def xmlns="https://www.obcom.cl/ns/service"
+  xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="https://www.obcom.cl/ns/service https://www.obcom.cl/ns/service.xsd">
+
+  <service id="desktopfx.netswitch" title="NetSwitch Service">
+    <!-- NetSwitch (socket) channel1 properties -->
+    <property name="channel1.name">NetSwitch</property>
+    <property name="channel1.switch.uri">sec://0:10204/</property>
+    <property name="channel1.layout.uri">layouts/*</property>
+    <property name="channel1.client.name">DESKTOPFX</property>
+    <property name="channel1.client.pass">VdHcMG2JQ</property>
+    <!-- HttpSwitch (http) channel2 properties -->
+    <property name="channel2.name">HttpSwitch</property>
+    <property name="channel2.switch.uri">/desktopfx/netswitch</property>
+    <property name="channel2.layout.uri">layouts/*</property>
+    <property name="channel2.client.name">DESKTOPFX</property>
+    <property name="channel2.client.pass">VdHcMG2JQ</property>
+    <!-- WsSwitch (webSocket) channel3 properties -->
+    <property name="channel3.name">WsSwitch</property>
+    <property name="channel3.switch.uri">ws:/desktopfx/netswitchws</property>
+    <property name="channel3.layout.uri">layouts/*</property>
+    <property name="channel3.client.name">DESKTOPFX</property>
+    <property name="channel3.client.pass">VdHcMG2JQ</property>
+  </service>
+
+  <service id="desktopfx.netserver" title="NetServer Service">
+    <!-- NetServer (socket) channel1 properties -->
+    <property name="channel1.name">NetServer</property>
+    <property name="channel1.server.uri">net://0:10104/</property>
+    <property name="channel1.layout.uri">layouts/*</property>
+    <property name="channel1.encrypt.all">true</property>
+    <property name="channel1.auto.login">true</property>
+    <!-- HttpServer (http) channel2 properties -->
+    <property name="channel2.name">HttpServer</property>
+    <property name="channel2.server.uri">/desktopfx/netserver</property>
+    <property name="channel2.layout.uri">layouts/*</property>
+    <property name="channel2.encrypt.all">true</property>
+    <property name="channel2.auto.login">true</property>
+    <!-- WsServer (webSocket) channel3 properties -->
+    <property name="channel3.name">WsServer</property>
+    <property name="channel3.server.uri">ws:/desktopfx/netserverws</property>
+    <property name="channel3.layout.uri">layouts/*</property>
+    <property name="channel3.encrypt.all">true</property>
+    <property name="channel3.auto.login">true</property>
+  </service>
+
+  <service id="desktopfx.news" plugin="mcastnews" main="cl.obcom.mcastnews.NewsService" if="!kioskUser">
+    <property name="displaySecs">10</property>
+    <property name="deltaMinutes">-30</property>
+  </service>
+
+</service-def>

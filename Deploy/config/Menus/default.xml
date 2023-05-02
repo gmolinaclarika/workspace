@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright (c) IMPERIAL S.A. All rights reserved.
+ *
+ * All  rights  to  this product are owned by IMPERIAL S.A. and may only be used
+ * under the terms of its associated license document. You may NOT copy, modify,
+ * sublicense,  or  distribute  this  source  file  or  portions  of  it  unless
+ * previously  authorized  in writing by IMPERIAL S.A. In any event, this notice
+ * and above copyright must always be included verbatim with this file.
+-->
+<!DOCTYPE xml>
+<menu-def xmlns="https://www.obcom.cl/ns/menu"
+  xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="https://www.obcom.cl/ns/menu https://www.obcom.cl/ns/menu.xsd">
+
+  <menu text="Administración" tool-tip="Administración" icon="cilinder" expand="true">
+    <leaf text="Usuarios WEB" tool-tip="Usuarios WEB" icon="certificate" unique="true" name="WSEC" plugin="websecurity" main="cl.obcom.websecurity.Main"/>
+    <leaf text="Multicast" tool-tip="Multicast" icon="center" unique="true" name="MCASTADMIN" plugin="mcastadmin" main="cl.obcom.mcastadmin.Main"/>
+  </menu>
+
+  <menu text="Ejemplos" tool-tip="Ejemplos" icon="sessions" expand="true">
+    <leaf text="Gráfico editable" tool-tip="Gráfico editable" icon="graphic" name="IGRA" plugin="samplechart" main="cl.imperial.samplechart.Main"/>
+    <leaf text="Navegador Web" tool-tip="Navegador Web" icon="world" name="IWEB" plugin="sampleweb" main="cl.imperial.sampleweb.Main"/>
+    <leaf text="Empleados" tool-tip="Empleados" icon="clip" name="IEMP" plugin="sampleemps" main="cl.imperial.sampleemps.Main"/>
+  </menu>
+
+  <menu text="Curso" tool-tip="Curso" icon="sessions" expand="true">
+    <leaf text="Empleados" tool-tip="Empleados" icon="clip" name="CEMP" plugin="empleados" main="cl.imperial.empleados.Main"/>
+  </menu>
+
+</menu-def>

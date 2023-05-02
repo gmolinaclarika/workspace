@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright (c) IMPERIAL S.A. All rights reserved.
+ *
+ * All  rights  to  this product are owned by IMPERIAL S.A. and may only be used
+ * under the terms of its associated license document. You may NOT copy, modify,
+ * sublicense,  or  distribute  this  source  file  or  portions  of  it  unless
+ * previously  authorized  in writing by IMPERIAL S.A. In any event, this notice
+ * and above copyright must always be included verbatim with this file.
+-->
+<jnlp>
+  <resources>
+    <!-- IMPERIAL Falcmr Library -->
+    <package name="cl.imperial.falcmr.*" part="cl.imperial.falcmr" recursive="true"/>
+    <jar href="/desktopext/jnlp/imperial-falcmr-lib.jar" part="cl.imperial.falcmr" download="lazy"/>
+
+    <!-- IMPERIAL Permisos Library -->
+    <package name="cl.imperial.permisos.*" part="cl.imperial.permisos" recursive="true"/>
+    <jar href="/desktopext/jnlp/imperial-permisos-lib.jar" part="cl.imperial.permisos" download="lazy"/>
+
+    <!-- IMPERIAL Proxy32 Library -->
+    <package name="cl.imperial.proxy32.*" part="cl.imperial.proxy32" recursive="true"/>
+    <jar href="/desktopext/jnlp/imperial-proxy32-lib.jar" part="cl.imperial.proxy32" download="lazy"/>
+
+    <!-- Apache POI (Poor Obfuscation Implementation) Library -->
+    <package name="org.apache.poi.*" part="org.apache.poi" recursive="true"/>
+    <jar href="/desktopext/jnlp/poi-4.1.2.jar" part="org.apache.poi" download="lazy"/>
+    <jar href="/desktopext/jnlp/commons-codec-1.13.jar" part="org.apache.poi" download="lazy"/>
+    <jar href="/desktopext/jnlp/commons-collections4-4.4.jar" part="org.apache.poi" download="lazy"/>
+    <jar href="/desktopext/jnlp/commons-math3-3.6.1.jar" part="org.apache.poi" download="lazy"/>
+    <jar href="/desktopext/jnlp/SparseBitSet-1.2.jar" part="org.apache.poi" download="lazy"/>
+
+    <!-- Apache PDFBox Library -->
+    <package name="org.apache.pdfbox.*" part="org.apache.pdfbox" recursive="true"/>
+    <jar href="/desktopext/jnlp/pdfbox-2.0.22.jar" part="org.apache.pdfbox" download="lazy"/>
+    <jar href="/desktopext/jnlp/fontbox-2.0.22.jar" part="org.apache.pdfbox" download="lazy"/>
+
+    <!-- Apache Commons Logging Library -->
+    <package name="org.apache.commons.logging.*" part="org.apache.commons.logging" recursive="true"/>
+    <jar href="/desktopext/jnlp/commons-logging-1.2.jar" part="org.apache.commons.logging" download="lazy"/>
+  </resources>
+</jnlp>

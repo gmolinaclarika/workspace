@@ -1,0 +1,147 @@
+<!--
+ * Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+ *
+ * All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+ * used  under  the  terms of its associated license document. You may NOT copy,
+ * modify, sublicense, or distribute this source file or portions of  it  unless
+ * previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+ * notice and above copyright must always be included verbatim with this file.
+-->
+<!DOCTYPE project>
+<project name="war-build" basedir=".">
+    <!-- Import common ant definitions -->
+    <import file="build-def.xml"/>
+
+    <!-- Default war specification version -->
+    <property name="war.version" value="1.1"/>
+
+    <!-- Directory that contains the web java sources -->
+    <property name="src.dir" location="../src"/>
+
+    <!-- Directory that containts the web site files -->
+    <property name="web.dir" location="../WebContent"/>
+
+    <!-- Directory that contains the web library files -->
+    <property name="lib.dir" location="${web.dir}/WEB-INF/lib"/>
+
+    <!-- Directory that contains the web class files -->
+    <property name="classes.dir" location="../build/classes"/>
+
+    <!-- Location of the web site manifest file -->
+    <property name="meta.file" location="${web.dir}/META-INF/MANIFEST.MF"/>
+
+    <!-- Directory that containts the jnlp files -->
+    <property name="jnlp.dir" location="${web.dir}/jnlp"/>
+
+    <!-- Set "jnlp.dir.exists" to "true" if JNLP directory exists -->
+    <available property="jnlp.dir.exists" file="${jnlp.dir}" type="dir"/>
+
+    <!-- Location of the application war file -->
+    <property name="war.file" location="${ant.project.name}.war"/>
+
+    <!-- Directory that contains the par files -->
+    <property name="pars.dir" location="${web.dir}/pars"/>
+
+    <!-- Location of the manifest file of PAR files -->
+    <property name="par.meta.file" location="MANIFEST-PAR.txt"/>
+
+    <!--=====================================================================-->
+
+    <!-- Builds the war depends -->
+    <target name="war-depends"/>
+
+    <!-- Sign all JAR files in JNLP directory (if jnlp.dir.exists) -->
+    <target name="war-signjar" depends="war-depends" if="jnlp.dir.exists">
+        <signjar storetype="${sign.storetype}"
+            digestalg="${sign.digestalg}" lazy="${lazy.sign}" strict="true"
+            sigfile="${sign.sigfile}" tsaurl="${sign.tsaurl}"
+            keystore="${sign.keystore}" alias="${sign.alias}"
+            storepass="${sign.storepass}" keypass="${sign.keypass}">
+            <path><fileset dir="${jnlp.dir}" includes="*.jar" excludes="obcom*"/></path>
+            <sysproperty key="jsse.enableSNIExtension" value="true"/>
+        </signjar>
+    </target>
+
+    <!-- Copy PAR file to PARS subdirectory (if plugin.name) -->
+    <target name="war-copypar" if="plugin.name">
+        <copy todir="${pars.dir}" preservelastmodified="true" verbose="true">
+            <file file="${deploy.pars}/${plugin.name}.par"/>
+        </copy>
+    </target>
+
+    <!-- Builds the application war file -->
+    <target name="war-build" depends="war-signjar,war-copypar">
+        <tstamp>
+            <format property="version" pattern="${version.pattern}"/>
+            <format property="build.datetime" pattern="${build.datetime.pattern}"/>
+        </tstamp>
+        <replaceregexp file="${meta.file}" match="Ant-Version:.*\n" flags="g" replace=""/>
+        <replaceregexp file="${meta.file}" match="Created-By:.*\n" flags="g" replace=""/>
+        <replaceregexp file="${meta.file}" match="Package-Version:.*" flags="g"
+            replace="Package-Version: ${jar.version}.${version}"/>
+        <manifest file="${meta.file}" mode="update">
+            <attribute name="Build-DateTime" value="${build.datetime}"/>
+            <attribute name="Specification-Version" value="${war.version}"/>
+            <attribute name="Implementation-Version" value="${war.version}.${version}"/>
+        </manifest>
+        <echo message="war file version = ${war.version}.${version}"/>
+        <war destfile="${war.file}" compress="true"
+            basedir="${web.dir}" manifest="${meta.file}">
+            <classes dir="${classes.dir}"/>
+        </war>
+    </target>
+
+    <!-- Deploys the application war file -->
+    <target name="war-deploy-all" depends="war-build">
+        <move file="${war.file}" todir="${deploy.deploy}" verbose="true"/>
+    </target>
+
+    <!--=====================================================================-->
+
+    <!-- Check all "par-build" parameters are available -->
+    <target name="par-build-check">
+        <condition property="par.build.run">
+            <and>
+                <isset property="par.file"/>
+                <isset property="par.files"/>
+                <isset property="par.title"/>
+                <available file="${par.meta.file}"/>
+            </and>
+        </condition>
+    </target>
+
+    <!-- Build PAR file for war file (if par.build.run) -->
+    <target name="par-build" depends="par-build-check" if="par.build.run">
+        <delete dir="par.build"/>
+        <copy todir="par.build" preservelastmodified="true" flatten="true">
+            <filelist refid="${par.files}"/>
+        </copy>
+        <tstamp>
+            <format property="version" pattern="${version.pattern}"/>
+            <format property="build.datetime" pattern="${build.datetime.pattern}"/>
+        </tstamp>
+        <replaceregexp file="${par.meta.file}" match="Ant-Version:.*\n" flags="g" replace=""/>
+        <replaceregexp file="${par.meta.file}" match="Created-By:.*\n" flags="g" replace=""/>
+        <replaceregexp file="${meta.file}" match="Package-Version:.*" flags="g"
+            replace="Package-Version: ${jar.version}.${version}"/>
+        <manifest file="${par.meta.file}" mode="update">
+            <attribute name="Build-DateTime" value="${build.datetime}"/>
+            <attribute name="Specification-Title" value="${par.title}"/>
+            <attribute name="Implementation-Title" value="${par.title}"/>
+            <attribute name="Specification-Version" value="${war.version}"/>
+            <attribute name="Implementation-Version" value="${war.version}.${version}"/>
+        </manifest>
+        <jar destfile="${par.file}" manifest="${par.meta.file}" compress="true">
+            <fileset dir="par.build"/>
+        </jar>
+        <signjar storetype="${sign.storetype}" jar="${par.file}"
+            digestalg="${sign.digestalg}" lazy="${lazy.sign}"
+            sigfile="${sign.sigfile}" tsaurl="${sign.tsaurl}"
+            keystore="${sign.keystore}" alias="${sign.alias}"
+            storepass="${sign.storepass}" keypass="${sign.keypass}">
+            <sysproperty key="jsse.enableSNIExtension" value="true"/>
+        </signjar>
+        <delete dir="par.build"/>
+        <move file="${par.file}" todir="${pars.dir}" verbose="true"/>
+    </target>
+</project>

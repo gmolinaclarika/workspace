@@ -1,0 +1,102 @@
+--------------------------------------------------------------------------------
+-- Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+--
+-- All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+-- used  under  the  terms of its associated license document. You may NOT copy,
+-- modify, sublicense, or distribute this source file or portions of  it  unless
+-- previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+-- notice and above copyright must always be included verbatim with this file.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+1) Copiar a "<payara-home>/glassfish/domains/production/lib":
+
+obcom-web-security.jar          -- [requerido] Filtro de seguridad DesktopFX
+mysql-connector-java-8.0.23.jar -- [opcional] Driver JDBC para MySQL
+ojdbc11.jar                     -- [opcional] Driver JDBC para Oracle
+postgresql-42.5.4.jar           -- [opcional] Driver JDBC para PostgreSQL
+mssql-jdbc-11.2.3.jre17.jar     -- [opcional] Driver JDBC para SQL Server
+
+--------------------------------------------------------------------------------
+2) Usando la "Consola HTTP" de Payara editar la configuración:
+
+"Resources/JDBC/JDBC Connection Pools":
+    Para "Oracle" crear:
+        Name            : DesktopFxORA
+        Resource        : javax.sql.DataSource
+        ClassName       : oracle.jdbc.pool.OracleDataSource
+        Properties      :
+            UserName    : <nombre-de-usuario>
+            Password    : <password-de-usuario>
+            URL         : jdbc:oracle:thin:@localhost:1521:ORCL
+    Para "PostgreSQL" crear:
+        Name            : DesktopFxPG
+        Resource        : javax.sql.DataSource
+        ClassName       : org.postgresql.ds.PGSimpleDataSource
+        Properties      :
+            UserName    : <nombre-de-usuario>
+            Password    : <password-de-usuario>
+            URL         : jdbc:postgresql://localhost:5432/ecubas
+    Para "SQL Server" crear:
+        Name            : DesktopFxSQL
+        Resource        : javax.sql.DataSource
+        ClassName       : com.microsoft.sqlserver.jdbc.SQLServerDataSource
+        Properties      :
+            UserName    : <nombre-de-usuario>
+            Password    : <password-de-usuario>
+            URL         : jdbc:sqlserver://localhost:1433;database=ECUBAS
+
+Asegurarse que la conexión funciona haciendo "clic" en el botón "Ping"
+
+--------------------------------------------------------------------------------
+3) Usando la "Consola HTTP" de Payara editar la configuración:
+
+Resources/JDBC/JDBC Resources:
+    JNDI Name   : jdbc/obcomDesktopFxDataSource
+    Pool Name   : "DesktopFxORA" o "DesktopFxPG" o "DesktopFxSQL"
+
+--------------------------------------------------------------------------------
+4) Usando la "Consola HTTP" de Payara editar la configuración:
+
+"Resources/JavaMail Sessions":
+    JNDI Name               : mail/obcomDesktopFxMailSession
+    Mail Host               : smtp.gmail.com
+    Default User            : desktopfx@obcom.cl
+    Password                : <user-password>
+    Auth                    : <enabled>
+    Default Sender Address  : OBCOM DesktopFX <desktopfx@obcom.cl>
+    Deployment Order        : 100
+    Description             : OBCOM DesktopFX Mail Account
+    Status                  : <enabled>
+    Advanced
+        Store Protocol              : imap
+        Store Protocol Class        : com.sun.mail.imap.IMAPStore
+        Transport Protocol          : smtp
+        Transport Protocol Class    : com.sun.mail.smtp.SMTPTransport
+        Debug                       : <disabled>
+        Additional Properties
+            mail.smtp.starttls.enable   : true
+            mail.smtp.port              : 587
+
+--------------------------------------------------------------------------------
+5) Copiar a "<payara-home>/glassfish/domains/production/autodeploy"
+
+obcom-desktopfx-web.war         -- [requerido] DesktopFX
+obcom-desktopext-web.war        -- [requerido] Extensiones DesktopFX
+obcom-mcastnews-web.war         -- [requerido] Mensajes de Noticias
+
+obcom-actviewer-web.war         -- [sugerido] Visor de Actividad de Usuarios
+obcom-imadmin-web.war           -- [sugerido] Admin Mensajería Instantánea
+obcom-imclient-web.war          -- [sugerido] Mensajería Instantánea
+obcom-mcastadmin-web.war        -- [sugerido] Admin Mensajes Multicast
+obcom-netsecurity-web.war       -- [sugerido] Admin Usuarios via NetSwitch
+obcom-websecurity-web.war       -- [sugerido] Admin Usuarios via WebService
+
+--------------------------------------------------------------------------------
+6) Copiar a "<payara-home>/glassfish/domains/production/docroot":
+
+Respaldar los archivos existentes en este directorio y luego:
+    copiar "favicon.ico"         -- Define el ícono del sitio web
+    copiar "index.html"          -- Redirecciona de "/" a "/desktopfx/"
+
+--------------------------------------------------------------------------------

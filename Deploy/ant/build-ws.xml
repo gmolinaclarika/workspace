@@ -1,0 +1,112 @@
+<!--
+ * Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+ *
+ * All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+ * used  under  the  terms of its associated license document. You may NOT copy,
+ * modify, sublicense, or distribute this source file or portions of  it  unless
+ * previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+ * notice and above copyright must always be included verbatim with this file.
+-->
+<!DOCTYPE project>
+<project name="ws-build" basedir=".">
+    <!-- Import common ant definitions -->
+    <import file="build-def.xml"/>
+
+    <!-- =================================================================== -->
+    <!-- == Properties ===================================================== -->
+    <!-- =================================================================== -->
+
+    <!-- Base URL used to download WebService WSDL and XSD files -->
+    <property name="ws.url" value="http://localhost:8080/plugin"/>
+
+    <!-- Name of the WebService client [Plugin]WebService -->
+    <property name="ws.name" value="PluginWebService"/>
+
+    <!-- Java package of the generated WebService client -->
+    <property name="ws.package" value="cl.obcom.plugin.ws"/>
+
+    <!-- Directory where the WebService client is generated -->
+    <property name="src.dir" value="../src"/>
+
+    <!-- Name of the downloaded WSDL file -->
+    <property name="wsdl.file" value="${ws.name}.wsdl"/>
+
+    <!-- Name of the downloaded XSD file -->
+    <property name="xsd.file" value="${ws.name}.xsd"/>
+
+    <!-- =================================================================== -->
+    <!-- == Targets ======================================================== -->
+    <!-- =================================================================== -->
+
+    <!-- Download and modify the required WSDL file -->
+    <target name="ws-get-wsdl">
+        <!-- Download the WSDL file quietly -->
+        <get src="${ws.url}/${ws.name}?wsdl" dest="${wsdl.file}"/>
+
+        <!-- Remove all XML comments from WSDL file -->
+        <replaceregexp file="${wsdl.file}" match="&lt;!--.*--&gt;" replace=""/>
+
+        <!-- Check if WSDL file requires an XSD file -->
+        <condition property="xsd.file.required">
+            <resourcecontains resource="${wsdl.file}" substring="schemaLocation="/>
+        </condition>
+    </target>
+
+    <!-- Download and modify the optional XSD file -->
+    <target name="ws-get-xsd" if="${xsd.file.required}">
+        <!-- Download the XSD file quietly -->
+        <get src="${ws.url}/${ws.name}?xsd=1" dest="${xsd.file}"/>
+
+        <!-- Remove all XML comments from XSD file -->
+        <replaceregexp file="${xsd.file}" match="&lt;!--.*--&gt;" replace=""/>
+
+        <!-- Replace "*?xsd=1" by "xsd.file" in WSDL -->
+        <replaceregexp file="${wsdl.file}"
+            match="schemaLocation=&quot;.*\?xsd=1&quot;"
+            replace="schemaLocation=&quot;${xsd.file}&quot;"/>
+    </target>
+
+    <!-- Generate WebService client using wsimport -->
+    <target name="ws-generate" depends="ws-get-wsdl,ws-get-xsd">
+        <!-- Delete contents of WebService client directory -->
+        <propertyregex property="ws.dir"
+            input="${ws.package}" regexp="\." replace="/"/>
+        <delete includeemptydirs="true" defaultexcludes="no">
+            <fileset dir="${src.dir}/${ws.dir}" includes="**/*"/>
+        </delete>
+
+        <!-- Generate WebService client using WSIMPORT and WSDL -->
+        <wsimport quiet="true"
+            wsdl="${wsdl.file}"
+            wsdllocation="${wsdl.file}"
+            keep="true" xnocompile="true"
+            sourcedestdir="${src.dir}"
+            package="${ws.package}">
+            <depends file="${wsdl.file}"/>
+            <produces dir="${src.dir}"/>
+        </wsimport>
+
+        <!-- Move WSDL and optional XSD to WebService directory -->
+        <move file="${wsdl.file}" todir="${src.dir}/${ws.dir}" verbose="true"/>
+        <move file="${xsd.file}" todir="${src.dir}/${ws.dir}" verbose="true"
+            quiet="true" failonerror="false"/>
+    </target>
+
+    <!-- =================================================================== -->
+    <!-- == Tasks ========================================================== -->
+    <!-- =================================================================== -->
+
+    <!-- Define the "propertyregex" ant task -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <fileset file="${deploy.tools}/tools/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+
+    <!-- Define the "wsimport" ant task -->
+    <taskdef name="wsimport" classname="com.sun.tools.ws.ant.WsImport">
+        <classpath>
+            <fileset dir="${deploy.tools}/tools/wsimport" includes="*.jar"/>
+        </classpath>
+    </taskdef>
+</project>

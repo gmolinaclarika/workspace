@@ -1,0 +1,176 @@
+--------------------------------------------------------------------------------
+-- Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+--
+-- All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+-- used  under  the  terms of its associated license document. You may NOT copy,
+-- modify, sublicense, or distribute this source file or portions of  it  unless
+-- previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+-- notice and above copyright must always be included verbatim with this file.
+--------------------------------------------------------------------------------
+
+Estos pasos deben ejecutarse DESPUÉS de "1_Wildfly-27.0.1-Install.txt".
+
+--------------------------------------------------------------------------------
+1) Instalar driver JDBC para DesktopFX (se pueden instalar todos):
+
+    Para instalar driver JDBC para MySQL:
+        Copiar el driver JDBC "mysql-connector-java-8.0.23.jar" al
+        directorio "C:\Java\Wildfly-27.0.1.Final\standalone\deployments"
+
+    Para instalar driver JDBC para Oracle:
+        Copiar el driver JDBC "ojdbc11.jar" al
+        directorio "C:\Java\Wildfly-27.0.1.Final\standalone\deployments"
+
+    Para instalar driver JDBC para PostgreSQL:
+        Copiar el driver JDBC "postgresql-42.5.4.jar" al
+        directorio "C:\Java\Wildfly-27.0.1.Final\standalone\deployments"
+
+    Para instalar driver JDBC para Microsoft SQL Server:
+        Copiar el driver JDBC "mssql-jdbc-11.2.3.jre17.jar" al
+        directorio "C:\Java\Wildfly-27.0.1.Final\standalone\deployments"
+
+--------------------------------------------------------------------------------
+2) Definir el datasource JDBC para DesktopFX:
+
+    Hacer login a la consola de administración "http://localhost:9990/"
+
+    Navegar a "Configuration/Subsystems/Datasources & Drivers/JDBC Drivers"
+    Verificar que aparecen los nombres de drivers copiados en el punto (2)
+
+    Navegar a "Configuration/Subsystems/Datasources & Drivers/Datasource"
+    Hacer clic en el botón "+" (Add Datasource) para agregar un datasource
+
+    Microsoft SQL Server:
+    
+        Paso 1: Choose Template:
+            Seleccionar la plantilla llamada "Microsoft SQLServer"
+        Paso 2: Attributes
+            Name:               obcomDesktopFxDataSource
+            JNDI Name:          java:/jdbc/obcomDesktopFxDataSource
+        Paso 3: JDBC Driver
+            Driver Name:        mssql-jdbc-11.2.0.jre17.jar del punto (1)
+            Driver Module Name: com.microsoft
+            Driver Class Name:  com.microsoft.sqlserver.jdbc.SQLServerDriver
+        Paso 4: Connection
+            Connection URL:     jdbc:sqlserver://localhost:1433;databaseName=ECUBAS
+            User Name:          <nombre-del-usuario>
+            Password:           <contraseña-del-usuario>
+        Paso 5: Test Connection
+            Hacer clic en botón "Test Connection" y verificar funciona
+        Paso 6: Review
+            Verificar los datos ingresados y hacer clic en "Finish"
+
+    PostgreSQL:
+    
+        Paso 1: Choose Template:
+            Seleccionar la plantilla llamada "PostgreSQL"
+        Paso 2: Attributes
+            Name:               obcomDesktopFxDataSource
+            JNDI Name:          java:/jdbc/obcomDesktopFxDataSource
+        Paso 3: JDBC Driver
+            Driver Name:        postgresql-42.5.0.jar del punto (1)
+            Driver Module Name: org.postgresql
+            Driver Class Name:  org.postgresql.Driver
+        Paso 4: Connection
+            Connection URL:     jdbc:postgresql://localhost:5432/bvc
+            User Name:          <nombre-del-usuario>
+            Password:           <contraseña-del-usuario>
+        Paso 5: Test Connection
+            Hacer clic en botón "Test Connection" y verificar funciona
+        Paso 6: Review
+            Verificar los datos ingresados y hacer clic en "Finish"
+
+    IMPORTANTE: cada Datasource debe tener un único (diferente) JNDI Name.
+
+--------------------------------------------------------------------------------
+3) Agregar la sesión JavaMail para DesktopFX (ejemplo para GMAIL):
+
+    Hacer login a la consola de administración "http://localhost:9990/"
+
+    Navegar a "Configuration/Socket Bindings"
+    Hacer clic en el botón "View" de "standad-sockets"
+    Seleccionar la opción "Outbound Remote"
+    Hacer clic en botón "Add" en la pantalla derecha
+        Name:           GmailSMTP
+        Host:           smtp.gmail.com
+        Port:           587
+        Hacer clic en botón "Add" de abajo
+    Verificar que "GmailSMTP" aparece en la tabla
+
+    Navegar a "Configuration/Subsystem/Mail"
+    Hacer clic en el botón "+" (Add Mail Session)
+        Name:           DesktopFxMailSession
+        JNDI Name:      java:/mail/obcomDesktopFxMailSession
+        From:           OBCOM DesktopFX <desktopfx@empresa.cl>
+        Hacer clic en botón "Add" de abajo
+
+    Navegar a "Configuration/Subsystem/Mail"
+    Hacer clic en el botón "View" de "DesktopFxMailSession"
+    Seleccionar la opción "Server"
+    Hacer clic en botón "Add" en la pantalla derecha
+        Type:                           SMTP
+        Outbound Socket Binding Ref:    GmailSMTP
+        Username:                       <usuario-del-correo>
+        Password:                       <contraseña-del-usuario>
+        SSL:                            OFF
+        TLS:                            ON
+        Hacer clic en botón "Add" de abajo
+    Verificar que "SMTP/GmailSMTP" aparece en la tabla
+
+--------------------------------------------------------------------------------
+4) Biblioteca de seguridad "obcom-web-security.jar" de DesktopFX:
+
+    Copiar toda la carpeta "obcom" en "Deploy/config/WildFly"
+    a la raíz del directorio "C:\Java\Wildfly-27.0.1.Final\modules"
+
+    Luego debe reiniciar WildFly para que tome este cambio!!
+
+--------------------------------------------------------------------------------
+5) Instalar los archivos WAR requeridos y sugeridos de DesktopFX:
+
+    Copiar a "C:\Java\Wildfly-27.0.1.Final\standalone\deployments":
+
+        obcom-desktopfx-web.war     -- [requerido] DesktopFX
+        bvc-desktopext-web.war      -- [requerido] Extensiones DesktopFX
+        obcom-mcastnews-web.war     -- [requerido] Mensajes de Noticias
+
+        obcom-actviewer-web.war     -- [sugerido] Visor de Actividad de Usuarios
+        obcom-imadmin-web.war       -- [sugerido] Admin Mensajería Instantánea
+        obcom-imclient-web.war      -- [sugerido] Mensajería Instantánea
+        obcom-mcastadmin-web.war    -- [sugerido] Admin Mensajes Multicast
+        obcom-netsecurity-web.war   -- [sugerido] Admin Usuarios via NetSwitch
+        obcom-websecurity-web.war   -- [sugerido] Admin Usuarios via WebService
+
+--------------------------------------------------------------------------------
+6) Configurar la página y el ícono de "bienvenida" de WildFly:
+
+    Copiar a "C:\Java\Wildfly-27.0.1.Final\welcome-content":
+
+        "welcome-content/favicon.ico"    -- Define ícono del sitio web
+        "welcome-content/index.html"     -- Redirecciona a "/desktopfx/"
+
+--------------------------------------------------------------------------------
+7) Cargar configuraciones iniciales en la base de datos:
+
+    Ejecutar archivo "DesktopFX\Lib\obcom-desktopfx-loader.cmd"
+        Conectarse a la base de datos con opción de menú "Connect..."
+        Seleccionar la clasificación "Menu":
+            Importar archivo "DesktopFX\Menu\default.xml"
+        Seleccionar la clasificación "Plugin":
+            Importar "DesktopFX\Plugins\plugin-apache-pdfbox.xml"
+            Importar "DesktopFX\Plugins\plugin-apache-poi.xml"
+            Importar "DesktopFX\Plugins\plugin-controlsfx.xml"
+            Importar "DesktopFX\Plugins\plugin-lowagie-itext2.xml"
+        Seleccionar la clasificación "Properties":
+            Importar "DesktopFX\Properties\login.properties"
+            Importar "DesktopFX\Properties\startup.properties"
+        Seleccionar la clasificación "Services":
+            Importar "DesktopFX\Services\service.xml"
+    Ejecutar archivo "DesktopFX\TrustStore\1_LoadTrustStore.cmd"
+
+--------------------------------------------------------------------------------
+8) Navegar a la URL de DesktopFX y seguir instrucciones para ejecutar:
+
+    Navegar a la URL http://localhost:8080/desktopfx/
+
+--------------------------------------------------------------------------------

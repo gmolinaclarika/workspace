@@ -1,0 +1,158 @@
+--------------------------------------------------------------------------------
+-- Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+--
+-- All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+-- used  under  the  terms of its associated license document. You may NOT copy,
+-- modify, sublicense, or distribute this source file or portions of  it  unless
+-- previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+-- notice and above copyright must always be included verbatim with this file.
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+1) Instalar "OpenJDK 17.0.6 de Azul Zulu" usando los siguientes pasos:
+
+    a) Navegar a la dirección "https://www.azul.com/downloads/".
+    b) Desgargar archivo "zulu17.40.19-ca-jdk17.0.6-linux_x64.zip".
+    c) Descomprimir archivo descargado en "/opt/jdk17.0.6-azul".
+
+--------------------------------------------------------------------------------
+2) Instalar "Payara Server 5.2022.5 (Full)" usando los siguientes pasos:
+
+    a) Descargar archivo "payara-5.2022.5.zip" desde
+       "https://www.payara.fish/downloads/payara-platform-community-edition/".
+    b) Descomprimir archivo descargado en "/opt/payara-5.2022.5".
+
+--------------------------------------------------------------------------------
+3) Editar "/opt/payara-5.2022.5/glassfish/config/asenv.bat" y agregar:
+
+set AS_JAVA=/opt/jdk17.0.1-azul
+
+--------------------------------------------------------------------------------
+4) Iniciar servidor "Payara 5.2022.5" con el dominio "domain1":
+
+    /opt/payara-5.2022.5/bin/asadmin start-domain domain1
+
+Abrir "Consola HTTP de Administración" navegando a la URL:
+
+    http://localhost:4848/
+
+Detener servidor "Payara 5.2022.5" con el dominio "domain1":
+
+    /opt/payara-5.2022.5/bin/asadmin stop-domain domain1
+
+--------------------------------------------------------------------------------
+5) Configuración servidor "Payara 5.2022.5" con el dominio "domain1":
+
+# Detener el servidor Payara
+/opt/payara-5.2022.5/bin/asadmin stop-domain domain1
+
+# Cambiar la contraseña del usuario administrador "admin":
+/opt/payara-5.2022.5/bin/asadmin change-admin-password --domain_name domain1
+# Enter admin user name [default: admin]> admin
+# Enter the admin password> <<enter>>
+# Enter the new admin password> adminadmin
+# Enter the new admin password again> adminadmin
+# Command change-admin-password executed successfully.
+
+# Iniciar el servidor Payara
+/opt/payara-5.2022.5/bin/asadmin start-domain domain1
+
+# Guardar credenciales para que "asadmin" haga "auto-login"
+/opt/payara-5.2022.5/bin/asadmin login
+# Enter admin user name [Enter to accept default]> admin
+# Enter admin password> adminadmin
+# Guarda contraseña en archivo "C:\Users\<Usuario>\.gfclient\pass"
+
+# Habilitar HTTPS para poder tener acceso remoto a Payara
+# URL http://xxxx:4848/ se cambiar por https://xxxx:4848/
+/opt/payara-5.2022.5/bin/asadmin enable-secure-admin
+# You must restart all running servers for the change in secure admin to take effect.
+# Command enable-secure-admin executed successfully.
+
+================================================================================
+== Configuraciones avanzadas opcionales ========================================
+================================================================================
+
+--------------------------------------------------------------------------------
+6) Leer: https://blog.payara.fish/fine-tuning-payara-server-5-in-production
+
+# Cambiar las opciones de JVM (recomendadas por sitio de Payara):
+/opt/payara-5.2022.5/bin/asadmin delete-jvm-options -- '-Xmx512m'
+/opt/payara-5.2022.5/bin/asadmin create-jvm-options -- '-Xms1g'
+/opt/payara-5.2022.5/bin/asadmin create-jvm-options -- '-Xmx2g'
+/opt/payara-5.2022.5/bin/asadmin create-jvm-options -- '-XX:+UseG1GC'
+/opt/payara-5.2022.5/bin/asadmin create-jvm-options -- '-XX:MetaspaceSize=256m'
+/opt/payara-5.2022.5/bin/asadmin create-jvm-options -- '-XX:MaxMetaspaceSize=1g'
+/opt/payara-5.2022.5/bin/asadmin create-jvm-options -- '-XX:+DisableExplicitGC'
+/opt/payara-5.2022.5/bin/asadmin create-jvm-options -- '-XX:+UseStringDeduplication'
+/opt/payara-5.2022.5/bin/asadmin create-jvm-options -- '-XX:NativeMemoryTracking=detail'
+/opt/payara-5.2022.5/bin/asadmin create-jvm-options -- '-Dfish.payara.classloading.delegate=false'
+
+# Deshabilitar envio de encabezados de identidad (para mejorar seguridad):
+/opt/payara-5.2022.5/bin/asadmin create-jvm-options -- '-Dproduct.name=""'
+/opt/payara-5.2022.5/bin/asadmin set server.network-config.protocols.protocol.http-listener-1.http.xpowered-by=false
+/opt/payara-5.2022.5/bin/asadmin set server.network-config.protocols.protocol.http-listener-2.http.xpowered-by=false
+/opt/payara-5.2022.5/bin/asadmin set server.network-config.protocols.protocol.admin-listener.http.xpowered-by=false
+/opt/payara-5.2022.5/bin/asadmin set server.network-config.protocols.protocol.sec-admin-listener.http.xpowered-by=false
+
+# Usar protocolo (scheme) especificado en encabezado HTTP "X-Forwarded-Proto" (Reverse Proxy):
+/opt/payara-5.2022.5/bin/asadmin set server.network-config.protocols.protocol.http-listener-1.http.scheme-mapping=X-Forwarded-Proto
+/opt/payara-5.2022.5/bin/asadmin set server.network-config.protocols.protocol.admin-listener.http.scheme-mapping=X-Forwarded-Proto
+
+# Habilitar instalación y actualización automática vía directorio "autodeploy":
+/opt/payara-5.2022.5/bin/asadmin set server.admin-service.das-config.autodeploy-enabled=true
+/opt/payara-5.2022.5/bin/asadmin set server.admin-service.das-config.dynamic-reload-enabled=true
+
+# Habilitar consola de monitoreo (http://localhost:8080/monitoring-console/)
+/opt/payara-5.2022.5/bin/asadmin set-monitoring-console-configuration --enabled=true
+
+--------------------------------------------------------------------------------
+7) Crear "SYSTEMD" como "root":
+
+# Editar el siguiente archivo "/usr/lib/systemd/system/payara.service"
+
+	[Unit]
+	Description=Payara 5.2022.5 service
+
+	[Service]
+	Type=forking
+	WorkingDirectory=/opt/payara-5.2022.5/glassfish/domains/domain1
+	ExecStart=/opt/payara-5.2022.5/glassfish/bin/asadmin start-domain domain1
+	ExecStop=/opt/payara-5.2022.5/glassfish/bin/asadmin stop-domain domain1
+	User=payara
+	Group=payara
+
+	[Install]
+	WantedBy=multi-user.target
+
+# Luego se puede controlar PAYARA con los siguientes comandos:
+
+	systemctl start payara
+	systemctl stop payara
+	systemctl status payara
+	systemctl enable payara
+	systemctl disable payara
+
+--------------------------------------------------------------------------------
+8) Cambiar el certificado utilizado para comunicación HTTPS:
+
+# Cambiar archivo "keystore.jks" en el siguiente directorio:
+/opt/payara-5.2022.5/glassfish/domains/domain1/config
+
+# Rehabilitar comunicación segura para leer nuevo certificado:
+/opt/payara-5.2022.5/bin/asadmin enable-secure-admin
+
+# Reiniciar servidor Payara para activar los cambios:
+/opt/payara-5.2022.5/bin/asadmin restart-domain domain1
+
+--------------------------------------------------------------------------------
+9) Configurar firewall the RedHat para habilitar puertos 8080, 8181 y 4848:
+
+firewall-cmd --get-active-zones
+firewall-cmd --get-default-zone
+firewall-cmd --zone=public --list-ports
+firewall-cmd --zone=public --add-port=8080/tcp --permanent
+firewall-cmd --zone=public --add-port=8181/tcp --permanent
+firewall-cmd --zone=public --add-port=4848/tcp --permanent
+
+--------------------------------------------------------------------------------

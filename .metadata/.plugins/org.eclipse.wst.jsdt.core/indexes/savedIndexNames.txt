@@ -1,0 +1,6 @@
+INDEX VERSION 1.4+C:\cursofx\Workspace17\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+4246995296.index
+1167615493.index
+1462618603.index
+1626552793.index
+3629080252.index

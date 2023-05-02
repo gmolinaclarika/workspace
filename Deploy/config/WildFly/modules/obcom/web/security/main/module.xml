@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+ *
+ * All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+ * used  under  the  terms of its associated license document. You may NOT copy,
+ * modify, sublicense, or distribute this source file or portions of  it  unless
+ * previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+ * notice and above copyright must always be included verbatim with this file.
+-->
+<module name="obcom.web.security" xmlns="urn:jboss:module:1.9">
+    <resources>
+        <resource-root path="obcom-web-security.jar"/>
+    </resources>
+
+    <dependencies>
+        <module name="java.logging"/>
+        <module name="java.naming"/>
+        <module name="java.sql"/>
+        <module name="java.xml"/>
+        <module name="javax.servlet.api"/>
+        <module name="javax.xml.soap.api"/>
+        <module name="javax.xml.ws.api"/>
+    </dependencies>
+</module>

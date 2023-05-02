@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+ *
+ * All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+ * used  under  the  terms of its associated license document. You may NOT copy,
+ * modify, sublicense, or distribute this source file or portions of  it  unless
+ * previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+ * notice and above copyright must always be included verbatim with this file.
+-->
+<jnlp>
+  <resources>
+    <package name="cl.obcom.mcastnews.*" part="cl.obcom.mcastnews" recursive="true"/>
+    <jar href="/mcastnews/jnlp/obcom-mcastnews-app.jar" part="cl.obcom.mcastnews" download="lazy"/>
+  </resources>
+</jnlp>

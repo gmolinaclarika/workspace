@@ -1,0 +1,42 @@
+--------------------------------------------------------------------------------
+-- Copyright (c) OBCOM INGENIERIA S.A. (Chile). All rights reserved.
+--
+-- All rights to this product are owned by OBCOM INGENIERIA S.A. and may only be
+-- used  under  the  terms of its associated license document. You may NOT copy,
+-- modify, sublicense, or distribute this source file or portions of  it  unless
+-- previously  authorized in writing by OBCOM INGENIERIA S.A. In any event, this
+-- notice and above copyright must always be included verbatim with this file.
+--------------------------------------------------------------------------------
+-- Usuario "imperial":
+--  1) Dueño de la base de datos "imperial".
+-- Usuario "imperial_ecubas":
+--  1) Dueño del esquema "ecubas" en la base de datos "imperial".
+--  2) Puede crear/actualizar objetos sólo en "search_path" = "ecubas".
+-- Usuario "imperial_ecubas_web":
+--  1) Se conecta desde Servidor JEE para acceder a objectos.
+--  2) No tiene privilegios para crear objectos en ningún esquema.
+--  3) Puede acceder sólo a objetos en "search_path" = "ecubas".
+--------------------------------------------------------------------------------
+
+C:\> chcp 1252
+C:\> psql -h localhost -U postgres
+
+CREATE USER imperial WITH PASSWORD 'imperial';
+CREATE USER imperial_ecubas WITH PASSWORD 'imperial_ecubas';
+CREATE USER imperial_ecubas_web WITH PASSWORD 'imperial_ecubas_web';
+
+CREATE DATABASE imperial OWNER imperial;
+\connect imperial
+
+CREATE SCHEMA ecubas AUTHORIZATION imperial_ecubas;
+ALTER USER imperial_ecubas IN DATABASE imperial SET search_path = ecubas;
+GRANT ALL ON SCHEMA ecubas TO imperial_ecubas;
+
+GRANT USAGE ON SCHEMA ecubas TO imperial_ecubas_web;
+REVOKE CREATE ON SCHEMA ecubas FROM imperial_ecubas_web;
+ALTER USER imperial_ecubas_web IN DATABASE imperial SET search_path = ecubas;
+ALTER DEFAULT PRIVILEGES IN SCHEMA ecubas GRANT ALL ON TABLES TO imperial_ecubas_web;
+ALTER DEFAULT PRIVILEGES IN SCHEMA ecubas GRANT ALL ON SEQUENCES TO imperial_ecubas_web;
+ALTER DEFAULT PRIVILEGES IN SCHEMA ecubas GRANT EXECUTE ON FUNCTIONS TO imperial_ecubas_web;
+
+--------------------------------------------------------------------------------

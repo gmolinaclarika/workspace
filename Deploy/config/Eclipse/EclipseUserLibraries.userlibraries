@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<eclipse-userlibraries version="2">
+    <library name="JAVAFX API" systemlibrary="false">
+        <archive path="/Deploy/xlibs/javafx/javafx-base-11-win.jar" source="/Deploy/xlibs/javafx/sources/javafx-base-11-sources.jar"/>
+        <archive path="/Deploy/xlibs/javafx/javafx-controls-11-win.jar" source="/Deploy/xlibs/javafx/sources/javafx-controls-11-sources.jar"/>
+        <archive path="/Deploy/xlibs/javafx/javafx-fxml-11-win.jar" source="/Deploy/xlibs/javafx/sources/javafx-fxml-11-sources.jar"/>
+        <archive path="/Deploy/xlibs/javafx/javafx-graphics-11-win.jar" source="/Deploy/xlibs/javafx/sources/javafx-graphics-11-sources.jar"/>
+        <archive path="/Deploy/xlibs/javafx/javafx-media-11-win.jar" source="/Deploy/xlibs/javafx/sources/javafx-media-11-sources.jar"/>
+        <archive path="/Deploy/xlibs/javafx/javafx-web-11-win.jar" source="/Deploy/xlibs/javafx/sources/javafx-web-11-sources.jar"/>
+    </library>
+    <library name="JAXWS API" systemlibrary="false">
+        <archive path="/Deploy/xlibs/jaxws/FastInfoset-1.2.18.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/gmbal-api-only-4.0.3.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/ha-api-3.1.13.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/jakarta.activation-1.2.2.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/jakarta.annotation-api-1.3.5.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/jakarta.jws-api-2.1.0.jar" source="/Deploy/xlibs/jaxws/sources/jakarta.jws-api-2.1.0-sources.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/jakarta.mail-1.6.7.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/jakarta.xml.bind-api-2.3.3.jar" source="/Deploy/xlibs/jaxws/sources/jakarta.xml.bind-api-2.3.3-sources.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/jakarta.xml.soap-api-1.4.2.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/jakarta.xml.ws-api-2.3.3.jar" source="/Deploy/xlibs/jaxws/sources/jakarta.xml.ws-api-2.3.3-sources.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/jaxb-impl-2.3.8.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/jaxws-rt-2.3.6.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/management-api-3.2.3.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/mimepull-1.9.15.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/policy-2.7.10.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/saaj-impl-1.5.3.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/stax2-api-4.2.1.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/stax-ex-1.8.3.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/streambuffer-1.5.10.jar"/>
+        <archive path="/Deploy/xlibs/jaxws/woodstox-core-6.5.0.jar"/>
+    </library>
+    <library name="JEE API 8.0.1" systemlibrary="false">
+        <archive path="/Deploy/xlibs/jee/javaee-api-8.0.1.jar" source="/Deploy/xlibs/jee/sources/javaee-api-8.0.1-sources.jar"/>
+    </library>
+    <library name="OBCOM DesktopFX" systemlibrary="false">
+        <archive path="/Deploy/olibs/obcom-desktopfx-jws.jar"/>
+        <archive javadoc="jar:platform:/resource/Deploy/javadoc/obcom-desktopfx-app-javadoc.jar!/" nativelibpaths="Deploy/jnilib/win-amd64" path="/Deploy/olibs/obcom-desktopfx-app.jar"/>
+        <archive path="/Deploy/libs/imperial-desktopext-app.jar"/>
+        <archive path="/Deploy/olibs/obcom-websocket-lib.jar"/>
+        <archive path="/Deploy/olibs/obcom-fst.jar"/>
+        <archive path="/Deploy/olibs/obcom-fst-jackson.jar"/>
+        <archive path="/Deploy/olibs/obcom-fst-javassist.jar"/>
+        <archive path="/Deploy/olibs/obcom-fst-objenesis.jar"/>
+        <archive path="/Deploy/xlibs/jnlp.jar"/>
+    </library>
+    <library name="OBCOM Plugins" systemlibrary="false">
+        <archive path="/Deploy/olibs/obcom-actviewer-app.jar"/>
+        <archive path="/Deploy/olibs/obcom-imadmin-app.jar"/>
+        <archive path="/Deploy/olibs/obcom-imclient-app.jar"/>
+        <archive path="/Deploy/olibs/obcom-mcastadmin-app.jar"/>
+        <archive path="/Deploy/olibs/obcom-mcastnews-app.jar"/>
+        <archive path="/Deploy/olibs/obcom-netsecurity-app.jar"/>
+        <archive path="/Deploy/olibs/obcom-websecurity-app.jar"/>
+    </library>
+</eclipse-userlibraries>
